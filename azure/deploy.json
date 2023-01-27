@@ -84,11 +84,7 @@
                         "value": "[resourceGroup().name]"
                     }
                 ],
-                "scriptContent": "
-                    curl -O https://raw.githubusercontent.com/jasperstone/containerized-build-agents/main/docker/Dockerfile
-                    curl -O https://raw.githubusercontent.com/jasperstone/containerized-build-agents/main/docker/start.sh                    
-                    az acr build -t dockeragent:latest -r $acrName -g $rgName .
-                ",
+                "primaryScriptUri": "https://raw.githubusercontent.com/jasperstone/containerized-build-agents/main/azure/buildAndPushDockerAgent.sh",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "PT12H"
