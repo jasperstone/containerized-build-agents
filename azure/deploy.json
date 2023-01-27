@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string",
+            "defaultValue": "adoBuildAgentCluster",
+            "metadata": {
+                "description": "Name of the container registry and cluster"
+            }
+        },
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "contributorRoleDefinition": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+        "primaryUserAssignedIdentity": "[resourceId(resourceGroup().name, 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]",
+        "managedIdentityName": "[concat('id-', variables('acrName'), '-dev-', resourceGroup().location)]",
+        "acr": "[resourceId(resourceGroup().name, 'Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+        "acrName": "[toLower(parameters('clusterName'))]",
+        "acrContributorRoleName": "[guid(variables('acrName'), variables('primaryUserAssignedIdentity'), variables('contributorRoleDefinition'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2019-05-01",
+            "name": "[variables('acrName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": true
+            }
+        },
+        {
+            "name": "[variables('managedIdentityName')]",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2018-11-30",
+            "location": "[resourceGroup().location]"
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', variables('acrName'))]",
+            "name": "[variables('acrContributorRoleName')]",
+            "properties": {
+                "roleDefinitionId": "[extensionResourceId(variables('acr'), 'Microsoft.Authorization/roleDefinitions', variables('contributorRoleDefinition'))]",
+                "principalId": "[reference(variables('primaryUserAssignedIdentity'), '2018-11-30').principalId]",
+                "principalType": "ServicePrincipal"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"]
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"],
+            "apiVersion": "2020-10-01",
+            "name": "buildAndPushImage",
+            "location": "[resourceGroup().location]",
+            "kind": "AzureCLI",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]": {}
+                }
+            },
+            "properties": {
+                "forceUpdateTag": "[parameters('utcValue')]",
+                "azCliVersion": "2.42.0",
+                "environmentVariables": [
+                    {
+                        "name": "acrName",
+                        "value": "[variables('acrName')]"
+                    },
+                    {
+                        "name": "rgName",
+                        "value": "[resourceGroup().name]"
+                    }
+                ],
+                "scriptContent": "
+                    curl -O https://raw.githubusercontent.com/jasperstone/containerized-build-agents/main/docker/Dockerfile
+                    curl -O https://raw.githubusercontent.com/jasperstone/containerized-build-agents/main/docker/start.sh                    
+                    az acr build -t dockeragent:latest -r $acrName -g $rgName .
+                ",
+                "timeout": "PT30M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "PT12H"
+            }
+        }
+    ],
+    "outputs": {}
+}
