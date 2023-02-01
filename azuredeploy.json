@@ -1,0 +1,332 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.13.1.58284",
+      "templateHash": "4687377736572804465"
+    }
+  },
+  "parameters": {
+    "containerAppName": {
+      "type": "string",
+      "defaultValue": "[format('app-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Specifies the name of the container app."
+      }
+    },
+    "containerAppEnvName": {
+      "type": "string",
+      "defaultValue": "[format('env-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Specifies the name of the container app environment."
+      }
+    },
+    "containerAppLogAnalyticsName": {
+      "type": "string",
+      "defaultValue": "[format('containerapp-log-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Specifies the name of the log analytics workspace."
+      }
+    },
+    "containerRegistryName": {
+      "type": "string",
+      "defaultValue": "[format('cr{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Specifies the name of the container app environment."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location for all resources."
+      }
+    },
+    "numReplicas": {
+      "type": "int",
+      "defaultValue": 3,
+      "maxValue": 25,
+      "minValue": 0,
+      "metadata": {
+        "description": "Number of replicas to deploy"
+      }
+    },
+    "utcNowString": {
+      "type": "string",
+      "defaultValue": "[utcNow()]"
+    },
+    "azpPool": {
+      "type": "string",
+      "metadata": {
+        "description": "The EXISTING Azure DevOps agent pool name"
+      }
+    },
+    "azpUrl": {
+      "type": "string",
+      "defaultValue": "https://dev.azure.com/{YourOrg}",
+      "metadata": {
+        "description": "The url for your Azure DevOps ORG"
+      }
+    },
+    "azpToken": {
+      "type": "secureString",
+      "metadata": {
+        "description": "The personal access token with Agent Pools (read, manage) scope"
+      }
+    }
+  },
+  "variables": {
+    "acrPullRole": "[resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+    "contributorRole": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2021-06-01",
+      "name": "[parameters('containerAppLogAnalyticsName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2022-06-01-preview",
+      "name": "[parameters('containerAppEnvName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Consumption"
+      },
+      "properties": {
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('containerAppLogAnalyticsName')), '2021-06-01').customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('containerAppLogAnalyticsName')), '2021-06-01').primarySharedKey]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('containerAppLogAnalyticsName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2022-01-31-preview",
+      "name": "[format('id-{0}', parameters('containerAppName'))]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2022-01-31-preview",
+      "name": "id-buildAndPushImage",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(resourceGroup().id, resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}', parameters('containerAppName'))), variables('acrPullRole'))]",
+      "properties": {
+        "roleDefinitionId": "[variables('acrPullRole')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}', parameters('containerAppName'))), '2022-01-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}', parameters('containerAppName')))]"
+      ],
+      "metadata": {
+        "description": "This allows the managed identity of the container app to access the registry, note scope is applied to the wider ResourceGroup not the ACR"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(resourceGroup().id, resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'id-buildAndPushImage'), variables('contributorRole'))]",
+      "properties": {
+        "roleDefinitionId": "[variables('contributorRole')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'id-buildAndPushImage'), '2022-01-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'id-buildAndPushImage')]"
+      ],
+      "metadata": {
+        "description": "This allows the managed identity of the deployment script to access the registry, note scope is applied to the wider ResourceGroup not the ACR"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "buildAndPushImage",
+      "location": "[parameters('location')]",
+      "kind": "AzureCLI",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'id-buildAndPushImage'))]": {}
+        }
+      },
+      "properties": {
+        "forceUpdateTag": "[parameters('utcNowString')]",
+        "azCliVersion": "2.40.0",
+        "environmentVariables": [
+          {
+            "name": "acrName",
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr'), '2020-10-01').outputs.loginServer.value]"
+          },
+          {
+            "name": "rgName",
+            "value": "[resourceGroup().name]"
+          }
+        ],
+        "primaryScriptUri": "https://raw.githubusercontent.com/jasperstone/containerized-build-agents/main/buildAndPushDockerAgent.sh",
+        "timeout": "PT15M",
+        "cleanupPreference": "OnSuccess",
+        "retentionInterval": "P1D"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'acr')]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'id-buildAndPushImage')]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-06-01-preview",
+      "name": "[parameters('containerAppName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}', parameters('containerAppName'))))]": {}
+        }
+      },
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppEnvName'))]",
+        "configuration": {
+          "registries": [
+            {
+              "identity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}', parameters('containerAppName')))]",
+              "server": "[reference(resourceId('Microsoft.Resources/deployments', 'acr'), '2020-10-01').outputs.loginServer.value]"
+            }
+          ],
+          "secrets": [
+            {
+              "name": "azptoken",
+              "value": "[parameters('azpToken')]"
+            }
+          ]
+        },
+        "template": {
+          "revisionSuffix": "firstrevision",
+          "containers": [
+            {
+              "name": "[parameters('containerAppName')]",
+              "image": "[format('{0}/dockeragent:latest', reference(resourceId('Microsoft.Resources/deployments', 'acr'), '2020-10-01').outputs.loginServer.value)]",
+              "resources": {
+                "cpu": "[json('.25')]",
+                "memory": ".5Gi"
+              },
+              "env": [
+                {
+                  "name": "AZP_POOL",
+                  "value": "[parameters('azpPool')]"
+                },
+                {
+                  "name": "AZP_URL",
+                  "value": "[parameters('azpUrl')]"
+                },
+                {
+                  "name": "AZP_TOKEN",
+                  "secretRef": "azptoken"
+                }
+              ]
+            }
+          ],
+          "scale": {
+            "minReplicas": "[parameters('numReplicas')]",
+            "maxReplicas": "[parameters('numReplicas')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'acr')]",
+        "[resourceId('Microsoft.Resources/deploymentScripts', 'buildAndPushImage')]",
+        "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppEnvName'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}', parameters('containerAppName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "acr",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "containerRegistryName": {
+            "value": "[parameters('containerRegistryName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.13.1.58284",
+              "templateHash": "3486037471346333220"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the location for all resources."
+              }
+            },
+            "containerRegistryName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ContainerRegistry/registries",
+              "apiVersion": "2022-02-01-preview",
+              "name": "[parameters('containerRegistryName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "adminUserEnabled": true
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[parameters('containerRegistryName')]"
+            },
+            "loginServer": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), '2022-02-01-preview').loginServer]"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
