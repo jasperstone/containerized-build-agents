@@ -5,7 +5,7 @@ metadata:
   labels:
     app: azdevops-agent
 spec:
-  replicas: 3 #here is the configuration for the actual agent always running
+  replicas: 1 #here is the configuration for the actual agent always running
   selector:
     matchLabels:
       app: azdevops-agent
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kubepodcreation
-        image: advancedbasic.azurecr.io/dockeragent:latest
+        image: <acr-server>/dockeragent:latest
         env:
           - name: AZP_URL
             valueFrom:
