@@ -1,3 +1,4 @@
+@description('Name of the AKS cluster')
 param aksClusterName string = 'aks-buildagents-${uniqueString(resourceGroup().id)}'
 
 @description('Specifies the name of the container app environment.')
@@ -9,8 +10,8 @@ param location string = resourceGroup().location
 @description('The EXISTING Azure DevOps agent pool name')
 param azpPool string
 
-@description('The url for your Azure DevOps ORG')
-param azpUrl string = 'https://dev.azure.com/{YourOrg}'
+@description('Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}')
+param azpUrl string
 
 @secure()
 @description('The personal access token with Agent Pools (read, manage) scope')
@@ -52,6 +53,8 @@ module aks 'aks.bicep' = {
   }
 }
 
+// Discussion about how to assign AcrPull role to an AKS cluster
+// https://github.com/Azure/bicep/discussions/3181
 @description('This is the built-in AcrPull role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpull')
 resource acrPullRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: subscription()
