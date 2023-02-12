@@ -27,6 +27,16 @@ param agentVMSize string = 'Standard_D2s_v3'
 ])
 param osType string = 'Linux'
 
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: aksClusterName
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+  }
+}
+
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-01-02-preview' = {
   location: location
   name: aksClusterName
@@ -39,6 +49,14 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-01-02-previ
   properties: {
     enableRBAC: true
     dnsPrefix: dnsPrefix
+    addonProfiles: {
+      omsagent: {
+        enabled: true
+        config: {
+          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspace.id
+        }
+      }
+    }
     agentPoolProfiles: [
       {
         name: 'agentpool'
