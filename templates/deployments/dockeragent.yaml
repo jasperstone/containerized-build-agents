@@ -5,7 +5,7 @@ metadata:
   labels:
     app: azdevops-agent
 spec:
-  replicas: 1 #here is the configuration for the actual agent always running
+  replicas: 3 #here is the configuration for the actual agent always running
   selector:
     matchLabels:
       app: azdevops-agent
@@ -33,10 +33,3 @@ spec:
               secretKeyRef:
                 name: azdevops
                 key: AZP_POOL
-        volumeMounts:
-        - mountPath: /var/run/docker.sock
-          name: docker-volume
-      volumes:
-      - name: docker-volume
-        hostPath:
-          path: /var/run/docker.sock
