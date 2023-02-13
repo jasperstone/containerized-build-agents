@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "14519251374240561346"
+      "templateHash": "3472482481116171566"
     }
   },
   "parameters": {
@@ -1185,7 +1185,7 @@
           },
           "commands": {
             "value": [
-              "[format('kubectl create secret generic azdevops --from-literal=AZP_URL={0} --from-literal=AZP_TOKEN={1} --from-literal=AZP_POOL={2}', parameters('azpUrl'), parameters('azpToken'), parameters('azpPool'))]",
+              "[format('kubectl create configmap azdevops --from-literal=AZP_POOL={0} --from-literal=AZP_URL={1} && kubectl create secret generic azdevops --from-literal=AZP_TOKEN={2}', parameters('azpPool'), parameters('azpUrl'), parameters('azpToken'))]",
               "[format('kubectl apply -f {0} && kubectl set image deployment/azdevops-deployment kubepodcreation={1}', variables('deploymentYamlUrl'), reference(resourceId('Microsoft.Resources/deployments', 'buildAcrImage-linux-docker-agent'), '2020-10-01').outputs.acrImage.value)]"
             ]
           }

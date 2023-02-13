@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "10914381219069780820"
+      "templateHash": "3409845139531872955"
     }
   },
   "parameters": {
@@ -94,7 +94,7 @@
         ],
         "containers": [
           {
-            "name": "[format('buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",
+            "name": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",
             "properties": {
               "image": "[reference(resourceId('Microsoft.Resources/deployments', 'buildAcrImage-linux-docker-agent'), '2020-10-01').outputs.acrImage.value]",
               "resources": {
@@ -104,6 +104,10 @@
                 }
               },
               "environmentVariables": [
+                {
+                  "name": "AZP_AGENT_NAME",
+                  "value": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]"
+                },
                 {
                   "name": "AZP_POOL",
                   "value": "[parameters('azpPool')]"
