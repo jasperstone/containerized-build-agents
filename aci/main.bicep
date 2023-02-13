@@ -85,7 +85,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2022-09-01'
     ]
     containers: [
       {
-        name: 'buildagent-${padLeft(i, 2, '0')}'
+        name: 'aci-buildagent-${padLeft(i, 2, '0')}'
         properties: {
           image: buildAgentImage.outputs.acrImage
           resources: {
@@ -95,6 +95,10 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2022-09-01'
             }
           }
           environmentVariables: [
+            {
+              name: 'AZP_AGENT_NAME'
+              value: 'aci-buildagent-${padLeft(i, 2, '0')}'
+            }
             {
               name: 'AZP_POOL'
               value: azpPool
