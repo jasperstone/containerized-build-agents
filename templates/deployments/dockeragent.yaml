@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kubepodcreation
-        image: crkze22qwnq2ya4.azurecr.io/dockeragent:latest
+        image: <acr-server>/dockeragent:latest
         envFrom:
         - configMapRef:
             name: azdevops
