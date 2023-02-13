@@ -5,13 +5,16 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "13793677905986076829"
+      "templateHash": "14519251374240561346"
     }
   },
   "parameters": {
     "aksClusterName": {
       "type": "string",
-      "defaultValue": "[format('aks-buildagents-{0}', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[format('aks-buildagents-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Name of the AKS cluster"
+      }
     },
     "containerRegistryName": {
       "type": "string",
@@ -35,9 +38,8 @@
     },
     "azpUrl": {
       "type": "string",
-      "defaultValue": "https://dev.azure.com/{YourOrg}",
       "metadata": {
-        "description": "The url for your Azure DevOps ORG"
+        "description": "Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}"
       }
     },
     "azpToken": {
@@ -1039,7 +1041,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.13.1.58284",
-              "templateHash": "18034871785492260622"
+              "templateHash": "4399766712221311698"
             }
           },
           "parameters": {
@@ -1103,6 +1105,17 @@
           },
           "resources": [
             {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2022-10-01",
+              "name": "[parameters('aksClusterName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "PerGB2018"
+                }
+              }
+            },
+            {
               "type": "Microsoft.ContainerService/managedClusters",
               "apiVersion": "2022-01-02-preview",
               "name": "[parameters('aksClusterName')]",
@@ -1116,6 +1129,14 @@
               "properties": {
                 "enableRBAC": true,
                 "dnsPrefix": "[parameters('dnsPrefix')]",
+                "addonProfiles": {
+                  "omsagent": {
+                    "enabled": true,
+                    "config": {
+                      "logAnalyticsWorkspaceResourceID": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('aksClusterName'))]"
+                    }
+                  }
+                },
                 "agentPoolProfiles": [
                   {
                     "name": "agentpool",
@@ -1127,7 +1148,10 @@
                     "mode": "System"
                   }
                 ]
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('aksClusterName'))]"
+              ]
             }
           ],
           "outputs": {
