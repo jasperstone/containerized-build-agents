@@ -78,7 +78,7 @@ module runAksDeploy 'br/public:deployment-scripts/aks-run-command:1.0.1' = {
     aksName: aksClusterName
     commands: [
       'kubectl create configmap azdevops --from-literal=AZP_POOL=${azpPool} --from-literal=AZP_URL=${azpUrl} && kubectl create secret generic azdevops --from-literal=AZP_TOKEN=${azpToken}'
-      'kubectl apply -f ${deploymentYamlUrl} && kubectl set image deployment/azdevops-deployment kubepodcreation=${buildAgentImage.outputs.acrImage}'
+      'kubectl apply -f ${deploymentYamlUrl} && kubectl set image deployment/aks-buildagent kubepodcreation=${buildAgentImage.outputs.acrImage}'
     ]
   }
   dependsOn: [
