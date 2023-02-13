@@ -26,7 +26,13 @@ Deploy these to try out build containers or in a partitioned environment like TE
 ### Parameters
 | Name | Type | Required | Description |
 | :------------- | :----------: | :----------: | :------------- |
+| containerRegistryName | string | No | Name of the Azure Container Registry |
+| location | string | No | The resource location of the cluster |
+| instanceCount | int | No | Number of container instances to create
+| azpPool | string | Yes | The EXISTING Azure DevOps agent pool name |
+| azpUrl | string | Yes | Azure DevOps ORG URI (https://dev.azure.com/{YourOrg}) |
+| azpToken | string | Yes | The personal access token with Agent Pools (read, manage) scope |
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faks%2Fazuredeploy.json)
-[![Deploy to Azure](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faks%2Fazuredeploy.json)
-[![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faks%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faci%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faci%2Fazuredeploy.json)
+[![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faci%2Fazuredeploy.json)
