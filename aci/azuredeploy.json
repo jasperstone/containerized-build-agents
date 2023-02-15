@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "3409845139531872955"
+      "templateHash": "13015930693866321480"
     }
   },
   "parameters": {
@@ -75,7 +75,7 @@
         "count": "[length(range(0, parameters('instanceCount')))]"
       },
       "type": "Microsoft.ContainerInstance/containerGroups",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2021-09-01",
       "name": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",
       "location": "[parameters('location')]",
       "identity": {

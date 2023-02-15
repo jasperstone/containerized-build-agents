@@ -63,7 +63,7 @@ resource userAssignedIdentityRbac 'Microsoft.Authorization/roleAssignments@2022-
   }
 }
 
-resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, instanceCount): {
+resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = [for i in range(0, instanceCount): {
   name: 'aci-buildagent-${padLeft(i, 2, '0')}'
   location: location
   identity: {
