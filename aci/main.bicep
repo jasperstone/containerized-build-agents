@@ -17,11 +17,13 @@ param azpUrl string
 @description('The personal access token with Agent Pools (read, manage) scope')
 param azpToken string
 
-module acr 'br/public:compute/container-registry:1.0.1' = {
-  name: 'acr'
-  params: {
-    name: containerRegistryName
-    location: location
+resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
+  name: containerRegistryName
+  location: location
+  sku: {
+    name: 'Basic'
+  }
+  properties: {
     adminUserEnabled: true
   }
 }
@@ -42,36 +44,9 @@ module buildAgentImage 'br/public:deployment-scripts/build-acr:1.0.1' = {
   ]
 }
 
-@description('This is the built-in AcrPull role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpull')
-resource acrPullRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
-  scope: subscription()
-  name: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-}
-
-resource aciIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
-  name: 'id-acibuildagents'
-  location: location
-}
-
-resource userAssignedIdentityRbac 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, aciIdentity.id, acrPullRoleDefinition.id)
-  scope: resourceGroup()
-  properties: {
-    roleDefinitionId: acrPullRoleDefinition.id
-    principalId: aciIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}
-
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = [for i in range(0, instanceCount): {
   name: 'aci-buildagent-${padLeft(i, 2, '0')}'
   location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${aciIdentity.id}': {}
-    }
-  }
   dependsOn: [
     buildAgentImage
   ]
@@ -79,8 +54,9 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
     osType: 'Linux'
     imageRegistryCredentials: [
       {
-        server: acr.outputs.loginServer
-        identity: aciIdentity.id
+        server: acr.properties.loginServer
+        username: acr.listCredentials().username
+        password: acr.listCredentials().passwords[0].value
       }
     ]
     containers: [
