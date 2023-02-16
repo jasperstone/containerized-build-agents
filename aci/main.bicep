@@ -7,6 +7,9 @@ param location string = resourceGroup().location
 @description('Number of conainer instances to create')
 param instanceCount int = 3
 
+@description('Comma separated list of DNS nameservers')
+param nameservers array
+
 @description('The EXISTING Azure DevOps agent pool name')
 param azpPool string
 
@@ -59,6 +62,9 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
         password: acr.listCredentials().passwords[0].value
       }
     ]
+    dnsConfig: {
+      nameServers: nameservers
+    }
     containers: [
       {
         name: 'aci-buildagent-${padLeft(i, 2, '0')}'

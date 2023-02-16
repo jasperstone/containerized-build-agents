@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "12709614039129238703"
+      "templateHash": "4145964513268288009"
     }
   },
   "parameters": {
@@ -28,6 +28,12 @@
       "defaultValue": 3,
       "metadata": {
         "description": "Number of conainer instances to create"
+      }
+    },
+    "nameservers": {
+      "type": "array",
+      "metadata": {
+        "description": "Comma separated list of DNS nameservers"
       }
     },
     "azpPool": {
@@ -80,6 +86,9 @@
             "password": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), '2021-09-01').passwords[0].value]"
           }
         ],
+        "dnsConfig": {
+          "nameServers": "[parameters('nameservers')]"
+        },
         "containers": [
           {
             "name": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",
