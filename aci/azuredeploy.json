@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "734428227252175077"
+      "templateHash": "9241364020037987523"
     }
   },
   "parameters": {
@@ -41,6 +41,12 @@
       "defaultValue": "VNet/Subnet",
       "metadata": {
         "description": "Existing subnet name (optional)"
+      }
+    },
+    "nameservers": {
+      "type": "array",
+      "metadata": {
+        "description": "Comma separated list of DNS nameservers"
       }
     },
     "azpPool": {
@@ -94,6 +100,9 @@
           }
         ],
         "subnetIds": "[if(empty(parameters('subnetName')), null(), createArray(createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('subnetResourceGroup')), 'Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1]))))]",
+        "dnsConfig": {
+          "nameServers": "[parameters('nameservers')]"
+        },
         "containers": [
           {
             "name": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",

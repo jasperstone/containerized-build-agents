@@ -13,6 +13,9 @@ param subnetResourceGroup string
 @description('Existing subnet name (optional)')
 param subnetName string = 'VNet/Subnet'
 
+@description('Comma separated list of DNS nameservers')
+param nameservers array
+
 @description('The EXISTING Azure DevOps agent pool name')
 param azpPool string
 
@@ -71,6 +74,9 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
       }
     ]
     subnetIds: empty(subnetName) ? null : [{ id: subnet.id }]
+    dnsConfig: {
+      nameServers: nameservers
+    }
     containers: [
       {
         name: 'aci-buildagent-${padLeft(i, 2, '0')}'
