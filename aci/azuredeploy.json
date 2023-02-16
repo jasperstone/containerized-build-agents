@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "8474745494275055463"
+      "templateHash": "734428227252175077"
     }
   },
   "parameters": {
@@ -28,6 +28,12 @@
       "defaultValue": 3,
       "metadata": {
         "description": "Number of conainer instances to create"
+      }
+    },
+    "subnetResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet resource group name"
       }
     },
     "subnetName": {
@@ -87,7 +93,7 @@
             "password": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), '2021-09-01').passwords[0].value]"
           }
         ],
-        "subnetIds": "[if(empty(parameters('subnetName')), null(), createArray(createObject('id', resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1]))))]",
+        "subnetIds": "[if(empty(parameters('subnetName')), null(), createArray(createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('subnetResourceGroup')), 'Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1]))))]",
         "containers": [
           {
             "name": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",
