@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "4145964513268288009"
+      "templateHash": "8474745494275055463"
     }
   },
   "parameters": {
@@ -30,10 +30,11 @@
         "description": "Number of conainer instances to create"
       }
     },
-    "nameservers": {
-      "type": "array",
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "VNet/Subnet",
       "metadata": {
-        "description": "Comma separated list of DNS nameservers"
+        "description": "Existing subnet name (optional)"
       }
     },
     "azpPool": {
@@ -86,9 +87,7 @@
             "password": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), '2021-09-01').passwords[0].value]"
           }
         ],
-        "dnsConfig": {
-          "nameServers": "[parameters('nameservers')]"
-        },
+        "subnetIds": "[if(empty(parameters('subnetName')), null(), createArray(createObject('id', resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1]))))]",
         "containers": [
           {
             "name": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",

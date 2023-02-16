@@ -7,8 +7,8 @@ param location string = resourceGroup().location
 @description('Number of conainer instances to create')
 param instanceCount int = 3
 
-@description('Comma separated list of DNS nameservers')
-param nameservers array
+@description('Existing subnet name (optional)')
+param subnetName string = 'VNet/Subnet'
 
 @description('The EXISTING Azure DevOps agent pool name')
 param azpPool string
@@ -47,6 +47,10 @@ module buildAgentImage 'br/public:deployment-scripts/build-acr:1.0.1' = {
   ]
 }
 
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-07-01' existing = {
+  name: subnetName
+}
+
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = [for i in range(0, instanceCount): {
   name: 'aci-buildagent-${padLeft(i, 2, '0')}'
   location: location
@@ -62,9 +66,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
         password: acr.listCredentials().passwords[0].value
       }
     ]
-    dnsConfig: {
-      nameServers: nameservers
-    }
+    subnetIds: empty(subnetName) ? null : [{ id: subnet.id }]
     containers: [
       {
         name: 'aci-buildagent-${padLeft(i, 2, '0')}'
