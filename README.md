@@ -10,9 +10,13 @@ Deploy these to try out build containers or in a partitioned environment like TE
 | :------------- | :----------: | :----------: | :------------- |
 | containerRegistryName | string | No | Name of the Azure Container Registry |
 | location | string | No | The resource location of the cluster |
-| instanceCount | int | No | Number of container instances to create
+| instanceCount | int | No | Number of container instances to create |
+| subnetResourceGroup | string | Yes | Subnet resource group name |
+| subnetName | string | No | Existing subnet name (VNet/Subnet) |
+| nameservers | array | No | Comma separaeted list of DNS nameservers (['dns1', 'dns2']) |
 | azpPool | string | Yes | The EXISTING Azure DevOps agent pool name |
 | azpUrl | string | Yes | Azure DevOps ORG URI (https://dev.azure.com/{YourOrg}) |
+| azpCertUrl | string | No | Url for the p7b file containing the root cert for the DevOps url |
 | azpToken | string | Yes | The personal access token with Agent Pools (read, manage) scope |
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faci%2Fazuredeploy.json)

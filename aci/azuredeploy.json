@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "9241364020037987523"
+      "templateHash": "15390520720842441413"
     }
   },
   "parameters": {
@@ -59,6 +59,13 @@
       "type": "string",
       "metadata": {
         "description": "Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}"
+      }
+    },
+    "azpCertUrl": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Url for the p7b file containing the root cert for the DevOps url(optional)"
       }
     },
     "azpToken": {
@@ -126,6 +133,10 @@
                 {
                   "name": "AZP_URL",
                   "value": "[parameters('azpUrl')]"
+                },
+                {
+                  "name": "AZP_CERT_URL",
+                  "value": "[parameters('azpCertUrl')]"
                 },
                 {
                   "name": "AZP_TOKEN",

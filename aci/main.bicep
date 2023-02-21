@@ -22,6 +22,9 @@ param azpPool string
 @description('Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}')
 param azpUrl string
 
+@description('Url for the p7b file containing the root cert for the DevOps url(optional)')
+param azpCertUrl string = ''
+
 @secure()
 @description('The personal access token with Agent Pools (read, manage) scope')
 param azpToken string
@@ -100,6 +103,10 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
             {
               name: 'AZP_URL'
               value: azpUrl
+            }
+            {
+              name: 'AZP_CERT_URL'
+              value: azpCertUrl
             }
             {
               name: 'AZP_TOKEN'
