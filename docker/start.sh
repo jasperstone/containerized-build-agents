@@ -25,8 +25,7 @@ fi
 # Import root cert in p7b file from url if provided
 if [ -n "$AZP_CERT_URL" ]; then \
   curl $AZP_CERT_URL \
-    | openssl pkcs7 -print_certs \
-    | awk '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/ {print; if(/-END CERTIFICATE-/) exit}' \
+    | openssl x509 -inform DER \
     > /usr/local/share/ca-certificates/root.crt \
     && update-ca-certificates
 fi

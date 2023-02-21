@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "16758287663888198746"
+      "templateHash": "4469093489224485189"
     }
   },
   "parameters": {
@@ -67,7 +67,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Url for the p7b file containing the root cert for the DevOps url(optional)"
+        "description": "Url for the x509 root cert verifying the DevOps url(optional)"
       }
     },
     "azpToken": {

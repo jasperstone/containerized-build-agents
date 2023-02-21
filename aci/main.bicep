@@ -22,7 +22,7 @@ param azpPool string
 @description('Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}')
 param azpUrl string
 
-@description('Url for the p7b file containing the root cert for the DevOps url(optional)')
+@description('Url for the x509 root cert verifying the DevOps url(optional)')
 param azpCertUrl string = ''
 
 @secure()
