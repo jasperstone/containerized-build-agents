@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "15390520720842441413"
+      "templateHash": "16758287663888198746"
     }
   },
   "parameters": {
@@ -32,19 +32,21 @@
     },
     "subnetResourceGroup": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Subnet resource group name"
       }
     },
     "subnetName": {
       "type": "string",
-      "defaultValue": "VNet/Subnet",
+      "defaultValue": "",
       "metadata": {
-        "description": "Existing subnet name (optional)"
+        "description": "Existing subnet name (VNet/Subnet)"
       }
     },
     "nameservers": {
       "type": "array",
+      "defaultValue": [],
       "metadata": {
         "description": "Comma separated list of DNS nameservers"
       }
@@ -107,9 +109,7 @@
           }
         ],
         "subnetIds": "[if(empty(parameters('subnetName')), null(), createArray(createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('subnetResourceGroup')), 'Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1]))))]",
-        "dnsConfig": {
-          "nameServers": "[parameters('nameservers')]"
-        },
+        "dnsConfig": "[if(empty(parameters('nameservers')), null(), createObject('nameServers', parameters('nameservers')))]",
         "containers": [
           {
             "name": "[format('aci-buildagent-{0}', padLeft(range(0, parameters('instanceCount'))[copyIndex()], 2, '0'))]",
