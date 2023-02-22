@@ -6,18 +6,18 @@ The Dockerfile and start.sh script are taken from the [Run a self-hosted agent i
 Simplest solution to get a few agents running. Not as scalable as AKS.  
 Deploy these to try out build containers or in a partitioned environment like TEST or PROD to deploy artifacts.
 ### Parameters
-| Name | Type | Required | Description |
-| :------------- | :----------: | :----------: | :------------- |
-| containerRegistryName | string | No | Name of the Azure Container Registry |
-| location | string | No | The resource location of the cluster |
-| instanceCount | int | No | Number of container instances to create |
-| subnetResourceGroup | string | Yes | Subnet resource group name |
-| subnetName | string | No | Existing subnet name (VNet/Subnet) |
-| nameservers | array | No | Comma separaeted list of DNS nameservers (['dns1', 'dns2']) |
-| azpPool | string | Yes | The EXISTING Azure DevOps agent pool name |
-| azpUrl | string | Yes | Azure DevOps ORG URI (https://dev.azure.com/{YourOrg}) |
-| azpCertUrl | string | No | Url for the p7b file containing the root cert for the DevOps url |
-| azpToken | string | Yes | The personal access token with Agent Pools (read, manage) scope |
+Parameter name | Required | Description
+-------------- | -------- | -----------
+containerRegistryName | No       | Specifies the name of the container app environment.
+location       | No       | Specifies the location for all resources.
+instanceCount  | No       | Number of conainer instances to create
+subnetResourceGroup | No       | Subnet resource group name
+subnetName     | No       | Existing subnet name (VNet/Subnet)
+nameservers    | No       | Comma separated list of DNS nameservers: ["dns1", "dns2"]
+azpCertUrl     | No       | Url for the x509 root cert verifying the DevOps url
+azpUrl         | Yes      | Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}
+azpPool        | Yes      | The EXISTING Azure DevOps agent pool name
+azpToken       | Yes      | The personal access token with Agent Pools (read, manage) scope
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faci%2Fazuredeploy.json)
 [![Deploy to Azure](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faci%2Fazuredeploy.json)
@@ -28,14 +28,14 @@ Deploy these to try out build containers or in a partitioned environment like TE
 ## Agents running in AKS with Container Analytics
 Scalable solution for your entire ADO org. Run your DEV builds here to build, test and create artifacts.
 ### Parameters
-| Name | Type | Required | Description |
-| :------------- | :----------: | :----------: | :------------- |
-| aksClusterName | string | No | Name of your AKS cluster |
-| containerRegistryName | string | No | Name of the Azure Container Registry |
-| location | string | No | The resource location of the cluster |
-| azpPool | string | Yes | The EXISTING Azure DevOps agent pool name |
-| azpUrl | string | Yes | Azure DevOps ORG URI (https://dev.azure.com/{YourOrg}) |
-| azpToken | string | Yes | The personal access token with Agent Pools (read, manage) scope |
+Parameter name | Required | Description
+-------------- | -------- | -----------
+aksClusterName | No       | Name of the AKS cluster
+containerRegistryName | No       | Specifies the name of the container app environment.
+location       | No       | Specifies the location for all resources.
+azpPool        | Yes      | The EXISTING Azure DevOps agent pool name
+azpUrl         | Yes      | Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}
+azpToken       | Yes      | The personal access token with Agent Pools (read, manage) scope
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faks%2Fazuredeploy.json)
 [![Deploy to Azure](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjasperstone%2Fcontainerized-build-agents%2Fmain%2Faks%2Fazuredeploy.json)

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "4469093489224485189"
+      "templateHash": "4800836305193224825"
     }
   },
   "parameters": {
@@ -48,13 +48,14 @@
       "type": "array",
       "defaultValue": [],
       "metadata": {
-        "description": "Comma separated list of DNS nameservers"
+        "description": "Comma separated list of DNS nameservers: [\"dns1\", \"dns2\"]"
       }
     },
-    "azpPool": {
+    "azpCertUrl": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
-        "description": "The EXISTING Azure DevOps agent pool name"
+        "description": "Url for the x509 root cert verifying the DevOps url"
       }
     },
     "azpUrl": {
@@ -63,11 +64,10 @@
         "description": "Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}"
       }
     },
-    "azpCertUrl": {
+    "azpPool": {
       "type": "string",
-      "defaultValue": "",
       "metadata": {
-        "description": "Url for the x509 root cert verifying the DevOps url(optional)"
+        "description": "The EXISTING Azure DevOps agent pool name"
       }
     },
     "azpToken": {

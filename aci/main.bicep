@@ -13,17 +13,17 @@ param subnetResourceGroup string = ''
 @description('Existing subnet name (VNet/Subnet)')
 param subnetName string = ''
 
-@description('Comma separated list of DNS nameservers')
+@description('Comma separated list of DNS nameservers: ["dns1", "dns2"]')
 param nameservers array = []
 
-@description('The EXISTING Azure DevOps agent pool name')
-param azpPool string
+@description('Url for the x509 root cert verifying the DevOps url')
+param azpCertUrl string = ''
 
 @description('Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}')
 param azpUrl string
 
-@description('Url for the x509 root cert verifying the DevOps url(optional)')
-param azpCertUrl string = ''
+@description('The EXISTING Azure DevOps agent pool name')
+param azpPool string
 
 @secure()
 @description('The personal access token with Agent Pools (read, manage) scope')
