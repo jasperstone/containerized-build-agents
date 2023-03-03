@@ -40,79 +40,71 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   }
 }
 
-module buildAgentImage 'br/public:deployment-scripts/build-acr:1.0.1' = {
-  name: 'buildAcrImage-linux-docker-agent'
+module buildLinuxImage 'br/public:deployment-scripts/build-acr:2.0.1' = {
+  name: 'buildLinuxImage'
+  dependsOn: [ acr ]
   params: {
     initialScriptDelay: '0'
     AcrName: containerRegistryName
     location: location
     gitRepositoryUrl: 'https://github.com/jasperstone/containerized-build-agents.git'
-    gitRepoDirectory: 'docker'
-    imageName: 'dockeragent'
+    buildWorkingDirectory: 'docker/linuxagent'
+    imageName: 'linuxagent'
     imageTag: 'latest'
   }
-  dependsOn: [
-    acr
-  ]
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-07-01' existing = {
-  name: subnetName
-  scope: resourceGroup(subnetResourceGroup)
-}
-
-resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = [for i in range(0, instanceCount): {
-  name: 'aci-buildagent-${padLeft(i, 2, '0')}'
-  location: location
-  dependsOn: [
-    buildAgentImage
-  ]
-  properties: {
-    osType: 'Linux'
-    imageRegistryCredentials: [
-      {
-        server: acr.properties.loginServer
-        username: acr.listCredentials().username
-        password: acr.listCredentials().passwords[0].value
-      }
-    ]
-    subnetIds: empty(subnetName) ? null : [{ id: subnet.id }]
-    dnsConfig: empty(nameservers) ? null : { nameServers: nameservers }
-    containers: [
-      {
-        name: 'aci-buildagent-${padLeft(i, 2, '0')}'
-        properties: {
-          image: buildAgentImage.outputs.acrImage
-          resources: {
-            requests: {
-              cpu: 1
-              memoryInGB: 2
-            }
-          }
-          environmentVariables: [
-            {
-              name: 'AZP_AGENT_NAME'
-              value: 'aci-buildagent-${padLeft(i, 2, '0')}'
-            }
-            {
-              name: 'AZP_POOL'
-              value: azpPool
-            }
-            {
-              name: 'AZP_URL'
-              value: azpUrl
-            }
-            {
-              name: 'AZP_CERT_URL'
-              value: azpCertUrl
-            }
-            {
-              name: 'AZP_TOKEN'
-              secureValue: azpToken
-            }
-          ]
-        }
-      }
-    ]
+module buildWindowsImage 'br/public:deployment-scripts/build-acr:2.0.1' = {
+  name: 'buildWindowsImage'
+  dependsOn: [ acr ]
+  params: {
+    initialScriptDelay: '0'
+    AcrName: containerRegistryName
+    location: location
+    gitRepositoryUrl: 'https://github.com/jasperstone/containerized-build-agents.git'
+    buildWorkingDirectory: 'docker/windowsagent'
+    imageName: 'windowsagent'
+    imageTag: 'latest'
+    acrBuildPlatform: 'windows'
   }
-}]
+}
+
+module buildLinuxContainerInstance 'aci.bicep' = {
+  name: 'buildLinuxAci'
+  dependsOn: [ buildLinuxImage ]
+  params: {
+    location: location
+    containerRegistryName: containerRegistryName
+    containerRegistryResourceGroup: resourceGroup().name
+    subnetResourceGroup: subnetResourceGroup
+    subnetName: subnetName
+    nameservers: nameservers
+    azpCertUrl: azpCertUrl
+    osType: 'Linux'
+    imageName: buildLinuxImage.outputs.acrImage
+    azpPool: azpPool
+    azpToken: azpToken
+    azpUrl: azpUrl
+    instanceCount: instanceCount
+  }
+}
+
+module buildWindowsContainerInstance 'aci.bicep' = {
+  name: 'buildWindowsAci'
+  dependsOn: [ buildWindowsImage ]
+  params: {
+    location: location
+    containerRegistryName: containerRegistryName
+    containerRegistryResourceGroup: resourceGroup().name
+    subnetResourceGroup: subnetResourceGroup
+    subnetName: subnetName
+    nameservers: nameservers
+    azpCertUrl: azpCertUrl
+    osType: 'Windows'
+    imageName: buildWindowsImage.outputs.acrImage
+    azpPool: azpPool
+    azpToken: azpToken
+    azpUrl: azpUrl
+    instanceCount: instanceCount
+  }
+}
