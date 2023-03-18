@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subnetRg": {
+      "value": "MHA-DEVTEST-INT-EAST-NETWORK-RG"
+    },
+    "subnetName": {
+      "value": "MHA-GOV-DEVTEST-EAST/N68A-Subnet-04"
+    },
+    "managedIdentityname": {
+      "value": "MHA-DEVTEST-INT-EAST-AKS-MI"
+    }
+  }
+}
