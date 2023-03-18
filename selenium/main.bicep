@@ -11,7 +11,7 @@ param managedIdentityname string
 
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' existing = {
   name: subnetName
-  scope: resourceGroup('MHA-DEVTEST-INT-EAST-NETWORK-RG')
+  scope: resourceGroup(subnetRg)
 }
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
@@ -29,7 +29,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
   }
   properties: {
     dnsPrefix: 'selenium-dns'
-    nodeResourceGroup: 'MHA-DEVTEST-INT-EAST-JASPER2-RG'
+    nodeResourceGroup: 'MC_${resourceGroup().name}'
     agentPoolProfiles: [
       {
         name: 'default'
@@ -42,7 +42,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
     ]
     networkProfile: {
       loadBalancerSku: 'basic'
-      networkPlugin: 'kubenet'
+      networkPlugin: 'azure'
     }
   }
 }
