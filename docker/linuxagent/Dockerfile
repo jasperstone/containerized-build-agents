@@ -11,7 +11,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     iputils-ping \
     jq \
     lsb-release \
-    software-properties-common
+    software-properties-common \
+    unzip
+
+RUN curl -LOs https://github.com/PowerShell/PowerShell/releases/download/v7.3.3/powershell_7.3.3-1.deb_amd64.deb \
+    && dpkg -i powershell_7.3.3-1.deb_amd64.deb \
+    && apt-get install -f \
+    && rm powershell_7.3.3-1.deb_amd64.deb
 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
