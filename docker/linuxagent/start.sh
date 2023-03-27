@@ -24,6 +24,7 @@ fi
 
 # Import root cert in p7b file from url if provided
 if [ -n "$AZP_CERT_URL" ]; then \
+  echo "Downloading cert: $AZP_CERT_URL";
   curl $AZP_CERT_URL \
     | openssl x509 -inform DER \
     > /usr/local/share/ca-certificates/root.crt \
