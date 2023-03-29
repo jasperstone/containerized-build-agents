@@ -1,0 +1,25 @@
+isolateComponents: true
+global:
+  seleniumGrid:
+    imageTag: latest
+    nodesImageTag: latest
+chromeNode:
+  replicas: 25
+  imageName: vac20sppnprodreg.azurecr.us/selenium/node-chrome
+firefoxNode:
+  replicas: 2
+  imageName: vac20sppnprodreg.azurecr.us/selenium/node-firefox
+edgeNode:
+  replicas: 2
+  imageName: vac20sppnprodreg.azurecr.us/selenium/node-edge
+components:
+  router:
+    imageName: vac20sppnprodreg.azurecr.us/selenium/router
+  distributor:
+    imageName: vac20sppnprodreg.azurecr.us/selenium/distributor
+  eventBus:
+    imageName: vac20sppnprodreg.azurecr.us/selenium/event-bus
+  sessionMap:
+    imageName: vac20sppnprodreg.azurecr.us/selenium/sessions
+  sessionQueue:
+    imageName: vac20sppnprodreg.azurecr.us/selenium/session-queue
