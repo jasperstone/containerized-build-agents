@@ -54,21 +54,6 @@ module buildLinuxImage 'br/public:deployment-scripts/build-acr:2.0.1' = {
   }
 }
 
-module buildWindowsImage 'br/public:deployment-scripts/build-acr:2.0.1' = {
-  name: 'buildWindowsImage'
-  dependsOn: [ acr ]
-  params: {
-    initialScriptDelay: '0'
-    AcrName: containerRegistryName
-    location: location
-    gitRepositoryUrl: 'https://github.com/jasperstone/containerized-build-agents.git'
-    buildWorkingDirectory: 'docker/windowsagent'
-    imageName: 'windowsagent'
-    imageTag: 'latest'
-    acrBuildPlatform: 'windows'
-  }
-}
-
 module buildLinuxContainerInstance 'aci.bicep' = {
   name: 'buildLinuxAci'
   dependsOn: [ buildLinuxImage ]
@@ -82,26 +67,6 @@ module buildLinuxContainerInstance 'aci.bicep' = {
     azpCertUrl: azpCertUrl
     osType: 'Linux'
     imageName: buildLinuxImage.outputs.acrImage
-    azpPool: azpPool
-    azpToken: azpToken
-    azpUrl: azpUrl
-    instanceCount: instanceCount
-  }
-}
-
-module buildWindowsContainerInstance 'aci.bicep' = {
-  name: 'buildWindowsAci'
-  dependsOn: [ buildWindowsImage ]
-  params: {
-    location: location
-    containerRegistryName: containerRegistryName
-    containerRegistryResourceGroup: resourceGroup().name
-    subnetResourceGroup: subnetResourceGroup
-    subnetName: subnetName
-    nameservers: nameservers
-    azpCertUrl: azpCertUrl
-    osType: 'Windows'
-    imageName: buildWindowsImage.outputs.acrImage
     azpPool: azpPool
     azpToken: azpToken
     azpUrl: azpUrl
