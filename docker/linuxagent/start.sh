@@ -25,10 +25,11 @@ fi
 # Import root cert in p7b file from url if provided
 if [ -n "$AZP_CERT_URL" ]; then \
   echo "Downloading cert: $AZP_CERT_URL";
-  curl $AZP_CERT_URL \
-    | openssl x509 -inform DER \
-    > /usr/local/share/ca-certificates/root.crt \
-    && update-ca-certificates
+  CERT_FILE_DER=azpcert.cer
+  CERT_FILE_PEM=/usr/local/share/ca-certificates/azpcert.crt
+  curl -so $CERT_FILE_DER $AZP_CERT_URL
+  openssl x509 -inform der -outform pem -in $CERT_FILE_DER -out $CERT_FILE_PEM && update-ca-certificates
+  cat $CERT_FILE_PEM >> /opt/az/lib/python3.10/site-packages/certifi/cacert.pem
 fi
 
 export AGENT_ALLOW_RUNASROOT="1"
