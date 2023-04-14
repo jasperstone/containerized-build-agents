@@ -26,8 +26,8 @@ param imageName string
 @allowed(['Linux', 'Windows'])
 param osType string
 
-@description('Url for the x509 root cert verifying the DevOps url')
-param azpCertUrl string = ''
+@description('Space separated urls for x509 root certs to import')
+param rootCertUrls string = ''
 
 @description('Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}')
 param azpUrl string
@@ -63,7 +63,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
       }
     ]
     subnetIds: empty(subnetName) ? null : [{ id: subnet.id }]
-    dnsConfig: empty(nameservers) ? null : { nameServers: nameservers }
+    dnsConfig: osType == 'Linux' && empty(nameservers) ? null : { nameServers: nameservers }
     containers: [
       {
         name: aciName
@@ -89,8 +89,8 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
               value: azpUrl
             }
             {
-              name: 'AZP_CERT_URL'
-              value: azpCertUrl
+              name: 'ROOT_CERT_URLS'
+              value: rootCertUrls
             }
             {
               name: 'AZP_TOKEN'

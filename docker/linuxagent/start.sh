@@ -23,13 +23,20 @@ if [ -n "$AZP_WORK" ]; then
 fi
 
 # Import root cert in p7b file from url if provided
-if [ -n "$AZP_CERT_URL" ]; then \
-  echo "Downloading cert: $AZP_CERT_URL";
+if [ -n "$ROOT_CERT_URLS" ]; then
   CERT_FILE_DER=azpcert.cer
-  CERT_FILE_PEM=/usr/local/share/ca-certificates/azpcert.crt
-  curl -so $CERT_FILE_DER $AZP_CERT_URL
-  openssl x509 -inform der -outform pem -in $CERT_FILE_DER -out $CERT_FILE_PEM && update-ca-certificates
-  cat $CERT_FILE_PEM >> /opt/az/lib/python3.10/site-packages/certifi/cacert.pem
+  CERT_FILE_PEM=azpcert.pem
+  
+  for certUrl in $ROOT_CERT_URLS
+  do
+    echo "Downloading: $certUrl";
+    curl -so $CERT_FILE_DER $ROOT_CERT_URLS
+    openssl x509 -inform der -outform pem -in $CERT_FILE_DER -out $CERT_FILE_PEM
+    cat $CERT_FILE_PEM >> /usr/local/share/ca-certificates/VA_ROOT_$RANDOM.crt
+    cat $CERT_FILE_PEM >> /opt/az/lib/python3.10/site-packages/certifi/cacert.pem
+    rm $CERT_FILE_DER $CERT_FILE_PEM
+  done
+  update-ca-certificates
 fi
 
 export AGENT_ALLOW_RUNASROOT="1"
