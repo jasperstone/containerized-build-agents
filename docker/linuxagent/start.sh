@@ -23,7 +23,6 @@ if [ -n "$AZP_WORK" ]; then
 fi
 
 # Import root certs from urls if provided
-ROOT_CERT_CONFIG_OPTIONS=""
 if [ -n "$ROOT_CERT_URLS" ]; then
   # https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/certificate?source=recommendations&view=azure-devops-2022
   CERT_FILE_DER=azpcert.cer
@@ -44,7 +43,7 @@ if [ -n "$ROOT_CERT_URLS" ]; then
   done
   update-ca-certificates
   export NODE_OPTIONS=--use-openssl-ca
-  ROOT_CERT_CONFIG_OPTIONS="--sslcacert $AZ_CLI_CERT_FILE"
+  git config --global http.sslCAInfo $AZ_CLI_CERT_FILE
 fi
 
 export AGENT_ALLOW_RUNASROOT="1"
@@ -108,7 +107,7 @@ print_header "3. Configuring Azure Pipelines agent..."
   --pool "${AZP_POOL:-Default}" \
   --work "${AZP_WORK:-_work}" \
   --replace \
-  --acceptTeeEula $ROOT_CERT_CONFIG_OPTIONS & wait $!
+  --acceptTeeEul & wait $!
 
 print_header "4. Running Azure Pipelines agent..."
 
