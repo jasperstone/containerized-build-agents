@@ -11,6 +11,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     iputils-ping \
     jq \
     lsb-release \
+    maven \
+    openjdk-17-jdk \
     software-properties-common \
     unzip
 
