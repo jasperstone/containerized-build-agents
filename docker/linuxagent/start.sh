@@ -23,10 +23,12 @@ if [ -n "$AZP_WORK" ]; then
 fi
 
 # Import root certs from urls if provided
+ROOT_CERT_CONFIG_OPTIONS=""
 if [ -n "$ROOT_CERT_URLS" ]; then
   # https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/certificate?source=recommendations&view=azure-devops-2022
   CERT_FILE_DER=azpcert.cer
   CERT_FILE_PEM=azpcert.pem
+  AZ_CLI_CERT_FILE=/opt/az/lib/python3.10/site-packages/certifi/cacert.pem
   
   for certUrl in $ROOT_CERT_URLS
   do
@@ -36,12 +38,13 @@ if [ -n "$ROOT_CERT_URLS" ]; then
     cat $CERT_FILE_PEM >> /usr/local/share/ca-certificates/VA_ROOT_$RANDOM.crt
 
     # Azure CLI: https://learn.microsoft.com/en-us/cli/azure/use-cli-effectively?tabs=bash%2Cbash2#work-behind-a-proxy
-    cat $CERT_FILE_PEM >> /opt/az/lib/python3.10/site-packages/certifi/cacert.pem
+    cat $CERT_FILE_PEM >> $AZ_CLI_CERT_FILE
 
     rm $CERT_FILE_DER $CERT_FILE_PEM
   done
   update-ca-certificates
   export NODE_OPTIONS=--use-openssl-ca
+  ROOT_CERT_CONFIG_OPTIONS="--sslcacert $AZ_CLI_CERT_FILE"
 fi
 
 export AGENT_ALLOW_RUNASROOT="1"
@@ -105,7 +108,7 @@ print_header "3. Configuring Azure Pipelines agent..."
   --pool "${AZP_POOL:-Default}" \
   --work "${AZP_WORK:-_work}" \
   --replace \
-  --acceptTeeEula & wait $!
+  --acceptTeeEula $ROOT_CERT_CONFIG_OPTIONS & wait $!
 
 print_header "4. Running Azure Pipelines agent..."
 
