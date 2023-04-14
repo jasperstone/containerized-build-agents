@@ -22,8 +22,9 @@ if [ -n "$AZP_WORK" ]; then
   mkdir -p "$AZP_WORK"
 fi
 
-# Import root cert in p7b file from url if provided
+# Import root certs from urls if provided
 if [ -n "$ROOT_CERT_URLS" ]; then
+  # https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/certificate?source=recommendations&view=azure-devops-2022
   CERT_FILE_DER=azpcert.cer
   CERT_FILE_PEM=azpcert.pem
   
@@ -33,10 +34,14 @@ if [ -n "$ROOT_CERT_URLS" ]; then
     curl -so $CERT_FILE_DER $ROOT_CERT_URLS
     openssl x509 -inform der -outform pem -in $CERT_FILE_DER -out $CERT_FILE_PEM
     cat $CERT_FILE_PEM >> /usr/local/share/ca-certificates/VA_ROOT_$RANDOM.crt
+
+    # Azure CLI: https://learn.microsoft.com/en-us/cli/azure/use-cli-effectively?tabs=bash%2Cbash2#work-behind-a-proxy
     cat $CERT_FILE_PEM >> /opt/az/lib/python3.10/site-packages/certifi/cacert.pem
+
     rm $CERT_FILE_DER $CERT_FILE_PEM
   done
   update-ca-certificates
+  export NODE_OPTIONS=--use-openssl-ca
 fi
 
 export AGENT_ALLOW_RUNASROOT="1"
