@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "17636718152213789743"
+      "templateHash": "16330987744797221030"
     }
   },
   "parameters": {
@@ -51,11 +51,11 @@
         "description": "Comma separated list of DNS nameservers: [\"dns1\", \"dns2\"]"
       }
     },
-    "rootCertUrls": {
+    "rootCertUrl": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Space separated urls for x509 root certs to import"
+        "description": "Url for PEM formatted x509 root cert bundle to import"
       }
     },
     "azpUrl": {
@@ -392,8 +392,8 @@
           "nameservers": {
             "value": "[parameters('nameservers')]"
           },
-          "rootCertUrls": {
-            "value": "[parameters('rootCertUrls')]"
+          "rootCertUrl": {
+            "value": "[parameters('rootCertUrl')]"
           },
           "osType": {
             "value": "Linux"
@@ -421,7 +421,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.13.1.58284",
-              "templateHash": "4979125117982197843"
+              "templateHash": "2717013181116433130"
             }
           },
           "parameters": {
@@ -488,11 +488,11 @@
                 "description": "OS type of the image"
               }
             },
-            "rootCertUrls": {
+            "rootCertUrl": {
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "Space separated urls for x509 root certs to import"
+                "description": "Url for PEM formatted x509 root cert bundle to import"
               }
             },
             "azpUrl": {
@@ -569,8 +569,8 @@
                           "value": "[parameters('azpUrl')]"
                         },
                         {
-                          "name": "ROOT_CERT_URLS",
-                          "value": "[parameters('rootCertUrls')]"
+                          "name": "ROOT_CERT_BUNDLE_URL",
+                          "value": "[parameters('rootCertUrl')]"
                         },
                         {
                           "name": "AZP_TOKEN",

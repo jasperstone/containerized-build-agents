@@ -26,8 +26,8 @@ param imageName string
 @allowed(['Linux', 'Windows'])
 param osType string
 
-@description('Space separated urls for x509 root certs to import')
-param rootCertUrls string = ''
+@description('Url for PEM formatted x509 root cert bundle to import')
+param rootCertUrl string = ''
 
 @description('Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}')
 param azpUrl string
@@ -89,8 +89,8 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
               value: azpUrl
             }
             {
-              name: 'ROOT_CERT_URLS'
-              value: rootCertUrls
+              name: 'ROOT_CERT_BUNDLE_URL'
+              value: rootCertUrl
             }
             {
               name: 'AZP_TOKEN'

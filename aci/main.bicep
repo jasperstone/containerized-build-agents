@@ -16,8 +16,8 @@ param subnetName string = ''
 @description('Comma separated list of DNS nameservers: ["dns1", "dns2"]')
 param nameservers array = []
 
-@description('Space separated urls for x509 root certs to import')
-param rootCertUrls string = ''
+@description('Url for PEM formatted x509 root cert bundle to import')
+param rootCertUrl string = ''
 
 @description('Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}')
 param azpUrl string
@@ -64,7 +64,7 @@ module buildLinuxContainerInstance 'aci.bicep' = {
     subnetResourceGroup: subnetResourceGroup
     subnetName: subnetName
     nameservers: nameservers
-    rootCertUrls: rootCertUrls
+    rootCertUrl: rootCertUrl
     osType: 'Linux'
     imageName: buildLinuxImage.outputs.acrImage
     azpPool: azpPool

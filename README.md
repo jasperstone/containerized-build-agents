@@ -14,7 +14,7 @@ instanceCount  | No       | Number of conainer instances to create
 subnetResourceGroup | No       | Subnet resource group name
 subnetName     | No       | Existing subnet name (VNet/Subnet)
 nameservers    | No       | Comma separated list of DNS nameservers: ["dns1", "dns2"]
-azpCertUrl     | No       | Url for the x509 root cert verifying the DevOps url
+rootCertUrl    | No       | Url for PEM formatted x509 root cert bundle to import
 azpUrl         | Yes      | Azure DevOps ORG URI: https://dev.azure.com/{YourOrg}
 azpPool        | Yes      | The EXISTING Azure DevOps agent pool name
 azpToken       | Yes      | The personal access token with Agent Pools (read, manage) scope
