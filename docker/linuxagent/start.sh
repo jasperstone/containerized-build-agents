@@ -23,26 +23,24 @@ if [ -n "$AZP_WORK" ]; then
 fi
 
 # Import root certs from urls if provided
-if [ -n "$ROOT_CERT_URLS" ]; then
-  # https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/certificate?source=recommendations&view=azure-devops-2022
-  CERT_FILE_DER=azpcert.cer
-  CERT_FILE_PEM=azpcert.pem
-  AZ_CLI_CERT_FILE=/opt/az/lib/python3.10/site-packages/certifi/cacert.pem
-  
-  for certUrl in $ROOT_CERT_URLS
-  do
-    echo "Downloading: $certUrl";
-    curl -so $CERT_FILE_DER $ROOT_CERT_URLS
-    openssl x509 -inform der -outform pem -in $CERT_FILE_DER -out $CERT_FILE_PEM
-    cat $CERT_FILE_PEM >> /usr/local/share/ca-certificates/VA_ROOT_$RANDOM.crt
+if [ -n "$ROOT_CERT_BUNDLE_URL" ]; then
 
-    # Azure CLI: https://learn.microsoft.com/en-us/cli/azure/use-cli-effectively?tabs=bash%2Cbash2#work-behind-a-proxy
-    cat $CERT_FILE_PEM >> $AZ_CLI_CERT_FILE
-
-    rm $CERT_FILE_DER $CERT_FILE_PEM
-  done
+  # Add root certs
+  # ROOT_CERT_BUNDLE_URL='http://crl.pki.va.gov/PKI/AIA/VA/AllVAInternalCAs.p7b'
+  CERT_BUNDLE=certbundle.crt
+  curl $ROOT_CERT_BUNDLE_URL | openssl pkcs7 -out $CERT_BUNDLE -print_certs 
+  cat $CERT_BUNDLE | awk '/^-+BEG/{n++;s=1}s{print>"/usr/local/share/ca-certificates/cert" n ".crt"}/^-+END/{s=0}'
   update-ca-certificates
+
+  # Fix node
   export NODE_OPTIONS=--use-openssl-ca
+
+  # Fix Azure CLI
+  # https://learn.microsoft.com/en-us/cli/azure/use-cli-effectively?tabs=bash%2Cbash2#work-behind-a-proxy
+  AZ_CLI_CERT_FILE=/opt/az/lib/python3.10/site-packages/certifi/cacert.pem
+  cat $CERT_BUNDLE >> $AZ_CLI_CERT_FILE
+
+  # Fix git
   git config --global http.sslCAInfo $AZ_CLI_CERT_FILE
 fi
 
