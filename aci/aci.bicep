@@ -8,7 +8,7 @@ param containerRegistryName string
 param location string = resourceGroup().location
 
 @description('Number of conainer instances to create')
-param instanceCount int = 3
+param instanceCount int = 1
 
 @description('Subnet resource group name')
 param subnetResourceGroup string = ''
@@ -69,6 +69,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
         name: aciName
         properties: {
           image: imageName
+          command: [ '/bin/bash', '-c', 'echo hello; sleep 100000' ]
           resources: {
             requests: {
               cpu: 1
