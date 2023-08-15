@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "16330987744797221030"
+      "templateHash": "3439513061197620005"
     }
   },
   "parameters": {
@@ -421,7 +421,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.13.1.58284",
-              "templateHash": "2717013181116433130"
+              "templateHash": "17787550936277319131"
             }
           },
           "parameters": {
@@ -551,8 +551,8 @@
                       "image": "[parameters('imageName')]",
                       "resources": {
                         "requests": {
-                          "cpu": 1,
-                          "memoryInGB": 2
+                          "cpu": 2,
+                          "memoryInGB": 4
                         }
                       },
                       "environmentVariables": [
