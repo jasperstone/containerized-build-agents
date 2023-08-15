@@ -13,6 +13,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     lsb-release \
     software-properties-common \
     libicu66 \
+    maven \
     unzip
 
 RUN curl -LOs https://github.com/PowerShell/PowerShell/releases/download/v7.3.3/powershell_7.3.3-1.deb_amd64.deb \
